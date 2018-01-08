@@ -396,11 +396,11 @@ class LubanCompresser {
         int options = 100;
         bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
 
-//        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
-//            mByteArrayOutputStream.reset();
-//            options -= 6;
-//            bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
-//        }
+        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
+            mByteArrayOutputStream.reset();
+            options -= 6;
+            bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
+        }
         bitmap.recycle();
 
         FileOutputStream fos = new FileOutputStream(filePath);
