@@ -116,6 +116,7 @@ class LubanCompresser {
             if (height < 1664) {
                 if (file.length() / 1024 < 150) {
                     //return file;
+                   return bitmapFile2File(filePath,thumb);
                 }
 
                 size = (width * height) / Math.pow(1664, 2) * 150;
@@ -140,6 +141,7 @@ class LubanCompresser {
         } else if (scale <= 0.5625 && scale > 0.5) {
             if (height < 1280 && file.length() / 1024 < 200) {
                 //return file;
+                return bitmapFile2File(filePath,thumb);
             }
 
             int multiple = height / 1280 == 0 ? 1 : height / 1280;
@@ -394,11 +396,11 @@ class LubanCompresser {
         int options = 100;
         bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
 
-        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
-            mByteArrayOutputStream.reset();
-            options -= 6;
-            bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
-        }
+//        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
+//            mByteArrayOutputStream.reset();
+//            options -= 6;
+//            bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
+//        }
         bitmap.recycle();
 
         FileOutputStream fos = new FileOutputStream(filePath);
@@ -406,5 +408,32 @@ class LubanCompresser {
         fos.close();
 
         return new File(filePath);
+    }
+
+
+    public static File bitmapFile2File(String filename, String targetFileName) {
+        File targetpath = new File(targetFileName);
+        try {
+            if (!targetpath.exists()) {
+                targetpath.mkdirs();
+            }
+            File targetFile = new File(targetpath, String.format("%s", targetFileName));
+            if (!targetFile.exists()) {
+                targetFile.createNewFile();
+            }
+            FileOutputStream outputStream = null;
+            outputStream = new FileOutputStream(targetFile);
+            Bitmap bitmap = BitmapFactory.decodeFile(filename);
+            if (bitmap != null) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            }
+            outputStream.flush();
+            outputStream.close();
+            return targetFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

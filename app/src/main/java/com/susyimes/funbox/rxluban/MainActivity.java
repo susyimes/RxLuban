@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Resources res = MainActivity.this.getResources();
-        Bitmap bmp= BitmapFactory.decodeResource(res, R.mipmap.ic_launcher);
+        Bitmap bmp= BitmapFactory.decodeResource(res, R.mipmap.photo);
         try {
             saveImage(Environment.getExternalStorageDirectory()
                     + "/"+"123.jpg",bmp,1000);
@@ -81,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
         int options = 100;
         bitmap.compress(Bitmap.CompressFormat.JPEG, options, mByteArrayOutputStream);
 
-        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
-            mByteArrayOutputStream.reset();
-            options -= 6;
-            bitmap.compress(Bitmap.CompressFormat.JPEG, options, mByteArrayOutputStream);
-        }
+//        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
+//            mByteArrayOutputStream.reset();
+//            options -= 6;
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, options, mByteArrayOutputStream);
+//        }
         bitmap.recycle();
 
         FileOutputStream fos = new FileOutputStream(filePath);
