@@ -17,7 +17,7 @@ class LubanBuilder {
 
     Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
 
-    int gear = Luban.THIRD_GEAR;
+    int gear = Luban.ENGINE_GEAR;
 
     LubanBuilder(File cacheDir) {
         this.cacheDir = cacheDir;

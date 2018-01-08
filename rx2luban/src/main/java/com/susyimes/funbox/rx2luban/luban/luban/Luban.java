@@ -45,6 +45,8 @@ public class Luban {
 
     public static final int CUSTOM_GEAR = 4;
 
+    public static final int ENGINE_GEAR = 5;
+
     private static final String TAG = "Luban";
 
     private static String DEFAULT_DISK_CACHE_DIR = "luban_disk_cache";

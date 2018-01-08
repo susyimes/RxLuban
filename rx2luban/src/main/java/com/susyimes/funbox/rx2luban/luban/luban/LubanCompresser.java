@@ -18,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -43,6 +44,11 @@ class LubanCompresser {
     private final LubanBuilder mLuban;
 
     private ByteArrayOutputStream mByteArrayOutputStream;
+    private ExifInterface srcExif;
+    private String srcImg;
+    private File tagImg;
+    private int srcWidth;
+    private int srcHeight;
 
     LubanCompresser(LubanBuilder luban) {
         mLuban = luban;
@@ -80,8 +86,10 @@ class LubanCompresser {
         }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    private File compressImage(int gear, File file) throws IOException {
+    private File compressImage(int gear, File file) throws Exception {
         switch (gear) {
+            case Luban.ENGINE_GEAR:
+                return  engineCompress(file);
             case Luban.THIRD_GEAR:
                 return thirdCompress(file);
             case Luban.CUSTOM_GEAR:
@@ -91,6 +99,32 @@ class LubanCompresser {
             default:
                 return file;
         }
+    }
+
+    private File engineCompress(@Nullable File file) throws Exception {
+        Log.d("susyimes","workengine");
+        File result = new File(getCacheFilePath());
+        result.createNewFile();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = computeSize();
+
+        Bitmap tagBitmap = BitmapFactory.decodeFile(file.getPath(), options);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        tagBitmap = rotatingImage(tagBitmap);
+        tagBitmap.compress(Bitmap.CompressFormat.JPEG, 60, stream);
+        tagBitmap.recycle();
+
+
+
+        FileOutputStream fos = new FileOutputStream(result);
+        fos.write(stream.toByteArray());
+        fos.flush();
+        fos.close();
+        stream.close();
+
+        return result;
     }
 
     private File thirdCompress(@NonNull File file) throws IOException {
@@ -405,6 +439,7 @@ class LubanCompresser {
 
         FileOutputStream fos = new FileOutputStream(filePath);
         mByteArrayOutputStream.writeTo(fos);
+        fos.flush();
         fos.close();
 
         return new File(filePath);
@@ -436,4 +471,54 @@ class LubanCompresser {
 
         return null;
     }
+
+    private int computeSize() {
+        srcWidth = srcWidth % 2 == 1 ? srcWidth + 1 : srcWidth;
+        srcHeight = srcHeight % 2 == 1 ? srcHeight + 1 : srcHeight;
+
+        int longSide = Math.max(srcWidth, srcHeight);
+        int shortSide = Math.min(srcWidth, srcHeight);
+
+        float scale = ((float) shortSide / longSide);
+        if (scale <= 1 && scale > 0.5625) {
+            if (longSide < 1664) {
+                return 1;
+            } else if (longSide >= 1664 && longSide < 4990) {
+                return 2;
+            } else if (longSide > 4990 && longSide < 10240) {
+                return 4;
+            } else {
+                return longSide / 1280 == 0 ? 1 : longSide / 1280;
+            }
+        } else if (scale <= 0.5625 && scale > 0.5) {
+            return longSide / 1280 == 0 ? 1 : longSide / 1280;
+        } else {
+            return (int) Math.ceil(longSide / (1280.0 / scale));
+        }
+    }
+
+    private Bitmap rotatingImage(Bitmap bitmap) {
+        if (srcExif == null) return bitmap;
+
+        Matrix matrix = new Matrix();
+        int angle = 0;
+        int orientation = srcExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                angle = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                angle = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                angle = 270;
+                break;
+        }
+
+        matrix.postRotate(angle);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+
 }

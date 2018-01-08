@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         Luban.compress(new File(Environment.getExternalStorageDirectory()
                 + "/"+"123.jpg"),new File(Environment.getExternalStorageDirectory()
                 + "/"+"234.jpg")).launch(new OnCompressListener() {
