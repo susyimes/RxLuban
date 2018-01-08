@@ -20,6 +20,7 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -78,7 +79,12 @@ public class Luban {
      */
     public static Luban compress(File file, File cacheDir) {
         if (!isCacheDirValid(cacheDir)) {
-            throw new IllegalArgumentException("The cacheDir must be Directory");
+            //throw new IllegalArgumentException("The cacheDir must be Directory");
+            try {
+                cacheDir.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         Luban luban = new Luban(cacheDir);
         luban.mFile = file;
@@ -88,7 +94,12 @@ public class Luban {
 
     public static Luban compress(List<File> files, File cacheDir) {
         if (!isCacheDirValid(cacheDir)) {
-            throw new IllegalArgumentException("The cacheDir must be Directory");
+            //throw new IllegalArgumentException("The cacheDir must be Directory");
+            try {
+                cacheDir.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         Luban luban = new Luban(cacheDir);
         luban.mFile = files.get(0);
@@ -98,7 +109,7 @@ public class Luban {
 
     private static boolean isCacheDirValid(File cacheDir) {
         //cacheDir.isDirectory() &&
-        return  (cacheDir.exists() || cacheDir.mkdirs());
+        return  (cacheDir.exists());
     }
 
     /**

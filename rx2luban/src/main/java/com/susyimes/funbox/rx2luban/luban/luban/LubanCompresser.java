@@ -18,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -93,8 +94,9 @@ class LubanCompresser {
     }
 
     private File thirdCompress(@NonNull File file) throws IOException {
+        Log.d("pengying","sss3"+file.getAbsolutePath());
         String thumb = getCacheFilePath();
-
+        Log.d("pengying",thumb+"xxx");
         double size;
         String filePath = file.getAbsolutePath();
 
@@ -113,7 +115,7 @@ class LubanCompresser {
         if (scale <= 1 && scale > 0.5625) {
             if (height < 1664) {
                 if (file.length() / 1024 < 150) {
-                    return file;
+                    //return file;
                 }
 
                 size = (width * height) / Math.pow(1664, 2) * 150;
@@ -137,7 +139,7 @@ class LubanCompresser {
             }
         } else if (scale <= 0.5625 && scale > 0.5) {
             if (height < 1280 && file.length() / 1024 < 200) {
-                return file;
+                //return file;
             }
 
             int multiple = height / 1280 == 0 ? 1 : height / 1280;
@@ -200,6 +202,7 @@ class LubanCompresser {
 
     private File customCompress(@NonNull File file) throws IOException {
         String thumbFilePath = getCacheFilePath();
+
         String filePath = file.getAbsolutePath();
 
         int angle = getImageSpinAngle(filePath);
@@ -237,13 +240,13 @@ class LubanCompresser {
     }
 
     private String getCacheFilePath() {
-        StringBuilder name = new StringBuilder("Luban_" + System.currentTimeMillis());
-        if (mLuban.compressFormat == Bitmap.CompressFormat.WEBP) {
-            name.append(".webp");
-        } else {
-            name.append(".jpg");
-        }
-        return mLuban.cacheDir.getAbsolutePath() + File.separator + name;
+//        StringBuilder name = new StringBuilder("Luban_" + System.currentTimeMillis());
+//        if (mLuban.compressFormat == Bitmap.CompressFormat.WEBP) {
+//            name.append(".webp");
+//        } else {
+//            name.append(".jpg");
+//        }
+        return mLuban.cacheDir.toString();
     }
 
     /**
@@ -335,6 +338,7 @@ class LubanCompresser {
      */
     private File compress(String largeImagePath, String thumbFilePath, int width, int height,
                           int angle, long size) throws IOException {
+        Log.d("pengying","sss123");
         Bitmap thbBitmap = compress(largeImagePath, width, height);
 
         thbBitmap = rotatingImage(angle, thbBitmap);
@@ -368,14 +372,18 @@ class LubanCompresser {
      * @param size     the file size of image   期望大小
      */
     private File saveImage(String filePath, Bitmap bitmap, long size) throws IOException {
+        Log.d("pengying","sss1");
         checkNotNull(bitmap, TAG + "bitmap cannot be null");
 
-        File result = new File(filePath.substring(0, filePath.lastIndexOf("/")));
-
-        if (!result.exists() && !result.mkdirs()) {
-            return null;
-        }
-
+        File result = new File(filePath);
+        //File result = new File(filePath.substring(0, filePath.lastIndexOf("/")),filePath.substring( filePath.lastIndexOf("/"), filePath.length()));
+        //.substring(0, filePath.lastIndexOf("/"))
+        Log.d("pengying","sss"+result.getPath());
+//        if (!result.exists() && !result.mkdirs()) {
+//            return null;
+//        }
+        result.createNewFile();
+        Log.d("pengying","sss2"+result.getPath());
         if (mByteArrayOutputStream == null) {
             mByteArrayOutputStream = new ByteArrayOutputStream(
                     bitmap.getWidth() * bitmap.getHeight());
