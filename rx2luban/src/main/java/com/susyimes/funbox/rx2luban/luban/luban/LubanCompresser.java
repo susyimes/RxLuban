@@ -60,6 +60,9 @@ class LubanCompresser {
         return Observable.fromCallable(new Callable<File>() {
             @Override
             public File call() throws Exception {
+                if (Checker.isJPG(file.getPath())) {
+                    srcExif = new ExifInterface(file.getPath());
+                }
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 options.inSampleSize = 1;
