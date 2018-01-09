@@ -45,30 +45,41 @@ class LubanCompresser {
 
     private ByteArrayOutputStream mByteArrayOutputStream;
     private ExifInterface srcExif;
-    private String srcImg;
+
     private File tagImg;
     private int srcWidth;
     private int srcHeight;
 
     LubanCompresser(LubanBuilder luban) {
         mLuban = luban;
+
+
     }
 
     Observable<File> singleAction(final File file) {
         return Observable.fromCallable(new Callable<File>() {
             @Override
             public File call() throws Exception {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                options.inSampleSize = 1;
+
+                BitmapFactory.decodeFile(file.getPath(), options);
+                srcWidth = options.outWidth;
+                srcHeight = options.outHeight;
                 return compressImage(mLuban.gear, file);
+
             }
         }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
     }
-
+    @Deprecated
     Observable<List<File>> multiAction(List<File> files) {
         List<Observable<File>> observables = new ArrayList<>(files.size());
         for (final File file : files) {
             observables.add(Observable.fromCallable(new Callable<File>() {
                 @Override
                 public File call() throws Exception {
+
                     return compressImage(mLuban.gear, file);
                 }
             }));
